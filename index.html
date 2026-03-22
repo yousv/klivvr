@@ -6,7 +6,6 @@
 <title>Klivvr Scripts</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<script src="config.js"></script>
 <style>
   :root {
     --bg:       #07070d;
@@ -18,41 +17,32 @@
     --text:     #e8e8f4;
     --muted:    #7070a0;
     --accent:   #6ee7f7;
-    --accent2:  #a78bfa;
     --danger:   #f87171;
     --success:  #4ade80;
     --radius:   8px;
     --mono:     'JetBrains Mono', monospace;
     --sans:     'Syne', sans-serif;
   }
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--mono); font-size: 13px; }
-
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: var(--surface); }
   ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
-
   #app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-  /* ── TOPBAR ─────────────────────────────────────────────── */
+  /* ── TOPBAR ── */
   #topbar {
     display: flex; align-items: center; gap: 14px;
     padding: 0 24px; height: 56px; flex-shrink: 0;
     background: var(--surface); border-bottom: 1px solid var(--border);
   }
-  .logo {
-    display: flex; align-items: center; gap: 10px;
-  }
+  .logo { display: flex; align-items: center; gap: 10px; }
   .logo-mark {
-    width: 28px; height: 28px; border-radius: 7px;
-    background: var(--accent); display: flex; align-items: center; justify-content: center;
-    font-family: var(--sans); font-weight: 800; font-size: 13px; color: #07070d; flex-shrink: 0;
+    width: 28px; height: 28px; border-radius: 7px; background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--sans); font-weight: 800; font-size: 13px; color: #07070d;
   }
-  .logo-text {
-    font-family: var(--sans); font-size: 15px; font-weight: 800;
-    color: var(--text); letter-spacing: -0.3px;
-  }
+  .logo-text { font-family: var(--sans); font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
   .logo-text span { color: var(--accent); }
   .divider { width: 1px; height: 20px; background: var(--border); }
   #sheet-label {
@@ -71,6 +61,7 @@
   #status-dot.err { background: var(--danger);  box-shadow: 0 0 7px var(--danger); }
   #status-text { font-size: 11px; color: var(--muted); }
 
+  /* ── BUTTONS ── */
   .btn {
     display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
     border: 1px solid var(--border2); border-radius: var(--radius);
@@ -85,17 +76,17 @@
   .btn.sm { padding: 4px 10px; font-size: 11px; }
   .btn:disabled { opacity: .35; cursor: not-allowed; pointer-events: none; }
 
-  /* ── ERROR SCREEN ────────────────────────────────────────── */
+  /* ── ERROR SCREEN ── */
   #error-screen {
     flex: 1; display: none; flex-direction: column;
     align-items: center; justify-content: center; gap: 14px; padding: 40px; text-align: center;
   }
   #error-screen .err-icon { font-size: 38px; }
   #error-screen h2 { font-family: var(--sans); font-size: 18px; font-weight: 800; color: var(--danger); }
-  #error-screen p  { color: var(--muted); font-size: 12px; line-height: 1.8; max-width: 400px; }
-  #error-screen code { background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; padding: 2px 7px; color: var(--accent2); }
+  #error-screen p  { color: var(--muted); font-size: 12px; line-height: 1.8; max-width: 440px; }
+  #error-screen code { background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; padding: 2px 7px; color: var(--accent); }
 
-  /* ── TOOLBAR ─────────────────────────────────────────────── */
+  /* ── TOOLBAR ── */
   #toolbar {
     display: flex; align-items: center; gap: 10px;
     padding: 10px 22px; flex-shrink: 0;
@@ -112,7 +103,7 @@
   .search-ico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
   #row-count { font-size: 11px; color: var(--muted); margin-left: auto; }
 
-  /* ── TABLE ───────────────────────────────────────────────── */
+  /* ── TABLE ── */
   #table-wrap { flex: 1; overflow: auto; }
   table { width: 100%; border-collapse: collapse; }
   thead { position: sticky; top: 0; z-index: 10; }
@@ -131,26 +122,22 @@
   tbody td { padding: 10px 16px; font-size: 12px; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   tbody td.rn { color: var(--muted); font-size: 10px; width: 44px; text-align: right; padding-right: 8px; }
   tbody td.act { width: 100px; white-space: nowrap; }
-
   #empty-state {
     display: none; flex-direction: column; align-items: center;
     justify-content: center; padding: 72px; gap: 10px; color: var(--muted);
   }
   .empty-ico { font-size: 32px; margin-bottom: 4px; }
 
-  /* ── LOADER ──────────────────────────────────────────────── */
+  /* ── LOADER ── */
   #loader {
     position: fixed; inset: 0; background: rgba(7,7,13,.82); backdrop-filter: blur(5px);
     display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 200;
   }
-  .spinner {
-    width: 30px; height: 30px; border: 2px solid var(--border2);
-    border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite;
-  }
+  .spinner { width: 30px; height: 30px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   #loader p { color: var(--muted); font-size: 12px; }
 
-  /* ── MODALS ──────────────────────────────────────────────── */
+  /* ── MODALS ── */
   .overlay {
     position: fixed; inset: 0; background: rgba(7,7,13,.78); backdrop-filter: blur(5px);
     display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px;
@@ -164,14 +151,10 @@
   }
   .modal.sm { max-width: 360px; }
   @keyframes su { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
-  .modal-head {
-    padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
-  }
+  .modal-head { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
   .modal-head h2 { font-family: var(--sans); font-size: 15px; font-weight: 700; flex: 1; }
   .modal-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
   .modal-foot { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
-
   .field { display: flex; flex-direction: column; gap: 6px; }
   .field label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .9px; }
   .field input {
@@ -181,18 +164,14 @@
   }
   .field input:focus { border-color: var(--accent); }
   .field input::placeholder { color: var(--muted); }
-
   .confirm-msg { color: var(--muted); font-size: 12px; line-height: 1.7; }
 
-  /* ── TOASTS ──────────────────────────────────────────────── */
-  #toasts {
-    position: fixed; bottom: 24px; right: 24px;
-    display: flex; flex-direction: column; gap: 8px; z-index: 300; pointer-events: none;
-  }
+  /* ── TOASTS ── */
+  #toasts { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 300; pointer-events: none; }
   .toast {
     background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px;
     padding: 9px 16px; font-size: 12px; display: flex; align-items: center; gap: 8px;
-    animation: ti .2s ease; max-width: 290px; pointer-events: all;
+    animation: ti .2s ease; max-width: 290px;
   }
   .toast .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
   .toast.ok   .dot { background: var(--success); }
@@ -204,7 +183,6 @@
 <body>
 <div id="app">
 
-  <!-- TOPBAR -->
   <div id="topbar">
     <div class="logo">
       <div class="logo-mark">K</div>
@@ -221,15 +199,12 @@
     <button class="btn sm danger"  id="btn-out"  onclick="signOut()"    style="display:none">Sign out</button>
   </div>
 
-  <!-- ERROR: config.js missing -->
   <div id="error-screen">
     <div class="err-icon">⚠</div>
-    <h2>config.js not found</h2>
-    <p>Copy <code>config.example.js</code> → <code>config.js</code>, fill in your credentials, and reload.<br/>
-    <code>config.js</code> is gitignored and will never be committed.</p>
+    <h2>Not configured</h2>
+    <p>Add <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_SHEET_ID</code> as GitHub Actions secrets, then push to <code>main</code> to deploy.</p>
   </div>
 
-  <!-- MAIN -->
   <div id="main-view" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
     <div id="toolbar">
       <div id="search-wrap">
@@ -241,23 +216,15 @@
       <div id="row-count"></div>
     </div>
     <div id="table-wrap">
-      <table id="tbl">
-        <thead id="thead"></thead>
-        <tbody id="tbody"></tbody>
-      </table>
-      <div id="empty-state">
-        <div class="empty-ico">◫</div>
-        <div>No rows found</div>
-      </div>
+      <table><thead id="thead"></thead><tbody id="tbody"></tbody></table>
+      <div id="empty-state"><div class="empty-ico">◫</div><div>No rows found</div></div>
     </div>
   </div>
 
 </div>
 
-<!-- LOADER -->
 <div id="loader"><div class="spinner"></div><p id="loader-msg">Loading…</p></div>
 
-<!-- EDIT / ADD MODAL -->
 <div id="edit-overlay" class="overlay">
   <div class="modal">
     <div class="modal-head">
@@ -272,7 +239,6 @@
   </div>
 </div>
 
-<!-- CONFIRM DELETE -->
 <div id="del-overlay" class="overlay">
   <div class="modal sm">
     <div class="modal-head">
@@ -289,23 +255,16 @@
   </div>
 </div>
 
-<!-- TOASTS -->
 <div id="toasts"></div>
 
 <script>
-// ════════════════════════════════════════════════════════════
-//  CONFIG  (injected by config.js — gitignored)
-// ════════════════════════════════════════════════════════════
+// Placeholders replaced by GitHub Actions at deploy time — never real values in the repo
+const CLIENT_ID  = '%%GOOGLE_CLIENT_ID%%';
+const SHEET_ID   = '%%GOOGLE_SHEET_ID%%';
+const TARGET_GID = 1723849469;
 const SCOPES     = 'https://www.googleapis.com/auth/spreadsheets';
 const DISCOVERY  = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
-const TARGET_GID = 1723849469;
 
-const clientId = window.CONFIG?.clientId || null;
-const sheetId  = window.CONFIG?.sheetId  || null;
-
-// ════════════════════════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════════════════════════
 const S = {
   headers: [], rows: [], filtered: [],
   sheetName: '', sortCol: -1, sortAsc: true,
@@ -313,11 +272,8 @@ const S = {
   tokenClient: null, gapiReady: false, gisReady: false, authed: false,
 };
 
-// ════════════════════════════════════════════════════════════
-//  BOOT
-// ════════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
-  if (!clientId || !sheetId || clientId.startsWith('YOUR_')) {
+  if (CLIENT_ID.startsWith('%%') || SHEET_ID.startsWith('%%')) {
     document.getElementById('error-screen').style.display = 'flex';
     return;
   }
@@ -325,9 +281,6 @@ window.addEventListener('DOMContentLoaded', () => {
   initAPIs();
 });
 
-// ════════════════════════════════════════════════════════════
-//  GOOGLE AUTH
-// ════════════════════════════════════════════════════════════
 function initAPIs() {
   showLoader('Initializing…');
   loadScript('https://apis.google.com/js/api.js', () => {
@@ -340,7 +293,7 @@ function initAPIs() {
   });
   loadScript('https://accounts.google.com/gsi/client', () => {
     S.tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: clientId,
+      client_id: CLIENT_ID,
       scope: SCOPES,
       callback: async (resp) => {
         if (resp.error) { hideLoader(); toast('Auth error: ' + resp.error, 'err'); return; }
@@ -359,7 +312,7 @@ function initAPIs() {
 function loadScript(src, cb) {
   const s = document.createElement('script');
   s.src = src; s.onload = cb;
-  s.onerror = () => { hideLoader(); toast('Failed to load: ' + src, 'err'); };
+  s.onerror = () => { hideLoader(); toast('Failed to load Google APIs', 'err'); };
   document.head.appendChild(s);
 }
 
@@ -384,30 +337,23 @@ function signOut() {
 }
 
 function setStatus(cls, label) {
-  document.getElementById('status-dot').className  = cls;
+  document.getElementById('status-dot').className    = cls;
   document.getElementById('status-text').textContent = label;
 }
 
-// ════════════════════════════════════════════════════════════
-//  DATA
-// ════════════════════════════════════════════════════════════
 async function loadData() {
   if (!S.authed) return;
   showLoader('Loading spreadsheet…');
   try {
-    const meta   = await gapi.client.sheets.spreadsheets.get({ spreadsheetId: sheetId });
+    const meta   = await gapi.client.sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
     const sheets = meta.result.sheets || [];
     let name = sheets[0]?.properties?.title || 'Sheet1';
-    for (const sh of sheets) {
+    for (const sh of sheets)
       if (sh.properties.sheetId === TARGET_GID) { name = sh.properties.title; break; }
-    }
     S.sheetName = name;
     document.getElementById('sheet-label').textContent =
       `${meta.result.properties.title}  ›  ${name}`;
-
-    const resp = await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId, range: name,
-    });
+    const resp = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: name });
     const vals = resp.result.values || [];
     S.headers  = vals[0] || [];
     S.rows     = vals.slice(1);
@@ -421,169 +367,109 @@ async function loadData() {
   } finally { hideLoader(); }
 }
 
-// ════════════════════════════════════════════════════════════
-//  TABLE RENDER
-// ════════════════════════════════════════════════════════════
 function renderTable() {
-  const thead = document.getElementById('thead');
-  const tbody = document.getElementById('tbody');
   const empty = document.getElementById('empty-state');
-
-  // Header row
   let hh = '<tr><th style="width:44px;text-align:right">#</th>';
   S.headers.forEach((h, i) => {
     const on = S.sortCol === i;
-    hh += `<th onclick="sortBy(${i})" class="${on ? 'sorted' : ''}">
-      ${x(h)}<span class="sa${on ? ' on' : ''}">${on ? (S.sortAsc ? '↑' : '↓') : '↕'}</span>
-    </th>`;
+    hh += `<th onclick="sortBy(${i})" class="${on?'sorted':''}">${x(h)}<span class="sa${on?' on':''}">${on?(S.sortAsc?'↑':'↓'):'↕'}</span></th>`;
   });
   hh += '<th style="width:100px">Actions</th></tr>';
-  thead.innerHTML = hh;
-
+  document.getElementById('thead').innerHTML = hh;
   const rows = S.filtered;
   empty.style.display = rows.length ? 'none' : 'flex';
-  document.getElementById('row-count').textContent =
-    rows.length ? `${rows.length} / ${S.rows.length} rows` : '';
-
-  let bh = '';
-  rows.forEach(row => {
+  document.getElementById('row-count').textContent = rows.length ? `${rows.length} / ${S.rows.length} rows` : '';
+  document.getElementById('tbody').innerHTML = rows.map(row => {
     const ri = S.rows.indexOf(row);
-    bh += '<tr>';
-    bh += `<td class="rn">${ri + 2}</td>`;
-    S.headers.forEach((_, c) => {
-      bh += `<td title="${x(row[c] || '')}">${x(row[c] || '')}</td>`;
-    });
-    bh += `<td class="act">
-      <button class="btn sm" onclick="openEdit(${ri})">Edit</button>
-      <button class="btn sm danger" onclick="openDel(${ri})" style="margin-left:4px">✕</button>
-    </td></tr>`;
-  });
-  tbody.innerHTML = bh;
+    return `<tr><td class="rn">${ri+2}</td>${S.headers.map((_,c)=>`<td title="${x(row[c]||'')}">${x(row[c]||'')}</td>`).join('')}<td class="act"><button class="btn sm" onclick="openEdit(${ri})">Edit</button><button class="btn sm danger" onclick="openDel(${ri})" style="margin-left:4px">✕</button></td></tr>`;
+  }).join('');
 }
 
-// ════════════════════════════════════════════════════════════
-//  SEARCH & SORT
-// ════════════════════════════════════════════════════════════
 function filterRows() {
   const q = document.getElementById('search').value.toLowerCase();
-  S.filtered = q
-    ? S.rows.filter(r => r.some(c => (c || '').toLowerCase().includes(q)))
-    : [...S.rows];
-  applySort();
-  renderTable();
+  S.filtered = q ? S.rows.filter(r => r.some(c => (c||'').toLowerCase().includes(q))) : [...S.rows];
+  applySort(); renderTable();
 }
 
 function sortBy(col) {
   S.sortAsc = S.sortCol === col ? !S.sortAsc : true;
-  S.sortCol = col;
-  applySort();
-  renderTable();
+  S.sortCol = col; applySort(); renderTable();
 }
 
 function applySort() {
   if (S.sortCol < 0) return;
   const c = S.sortCol;
   S.filtered.sort((a, b) => {
-    const av = (a[c] || '').toLowerCase(), bv = (b[c] || '').toLowerCase();
-    const n  = parseFloat(av) - parseFloat(bv);
-    const cmp = isNaN(n) ? av.localeCompare(bv) : n;
-    return S.sortAsc ? cmp : -cmp;
+    const av = (a[c]||'').toLowerCase(), bv = (b[c]||'').toLowerCase();
+    const n = parseFloat(av) - parseFloat(bv);
+    return (S.sortAsc ? 1 : -1) * (isNaN(n) ? av.localeCompare(bv) : n);
   });
 }
 
-// ════════════════════════════════════════════════════════════
-//  ADD / EDIT
-// ════════════════════════════════════════════════════════════
 function openAdd() {
   S.editIdx = null;
   document.getElementById('modal-title').textContent = 'Add Row';
-  buildFields(S.headers.map(() => ''));
-  open_('edit-overlay');
+  buildFields(S.headers.map(() => '')); open_('edit-overlay');
 }
 
 function openEdit(ri) {
   S.editIdx = ri;
   document.getElementById('modal-title').textContent = 'Edit Row';
-  buildFields(S.rows[ri] || []);
-  open_('edit-overlay');
+  buildFields(S.rows[ri] || []); open_('edit-overlay');
 }
 
 function buildFields(vals) {
-  const wrap = document.getElementById('modal-fields');
-  wrap.innerHTML = S.headers.map((h, i) => `
-    <div class="field">
-      <label>${x(h)}</label>
-      <input type="text" id="f${i}" value="${x(vals[i] || '')}" placeholder="—" />
-    </div>`).join('');
-  setTimeout(() => wrap.querySelector('input')?.focus(), 80);
+  document.getElementById('modal-fields').innerHTML = S.headers.map((h, i) =>
+    `<div class="field"><label>${x(h)}</label><input type="text" id="f${i}" value="${x(vals[i]||'')}" placeholder="—" /></div>`
+  ).join('');
+  setTimeout(() => document.getElementById('modal-fields').querySelector('input')?.focus(), 80);
 }
 
 async function saveRow() {
-  const vals = S.headers.map((_, i) => document.getElementById('f' + i)?.value || '');
-  close_('edit-overlay');
-  showLoader('Saving…');
+  const vals = S.headers.map((_, i) => document.getElementById('f'+i)?.value || '');
+  close_('edit-overlay'); showLoader('Saving…');
   try {
     if (S.editIdx === null) {
       await gapi.client.sheets.spreadsheets.values.append({
-        spreadsheetId: sheetId, range: S.sheetName,
+        spreadsheetId: SHEET_ID, range: S.sheetName,
         valueInputOption: 'USER_ENTERED', insertDataOption: 'INSERT_ROWS',
         resource: { values: [vals] },
       });
-      S.rows.push(vals);
-      toast('Row added', 'ok');
+      S.rows.push(vals); toast('Row added', 'ok');
     } else {
       await gapi.client.sheets.spreadsheets.values.update({
-        spreadsheetId: sheetId,
-        range: `${S.sheetName}!A${S.editIdx + 2}`,
-        valueInputOption: 'USER_ENTERED',
-        resource: { values: [vals] },
+        spreadsheetId: SHEET_ID, range: `${S.sheetName}!A${S.editIdx+2}`,
+        valueInputOption: 'USER_ENTERED', resource: { values: [vals] },
       });
-      S.rows[S.editIdx] = vals;
-      toast('Row updated', 'ok');
+      S.rows[S.editIdx] = vals; toast('Row updated', 'ok');
     }
     filterRows();
-  } catch (e) {
-    toast('Save failed: ' + (e.result?.error?.message || e.message || e), 'err');
-  } finally { hideLoader(); }
+  } catch (e) { toast('Save failed: ' + (e.result?.error?.message || e.message || e), 'err'); }
+  finally { hideLoader(); }
 }
 
-// ════════════════════════════════════════════════════════════
-//  DELETE
-// ════════════════════════════════════════════════════════════
 function openDel(ri) { S.delIdx = ri; open_('del-overlay'); }
 
 async function confirmDelete() {
-  const ri = S.delIdx;
-  close_('del-overlay');
-  showLoader('Deleting…');
+  const ri = S.delIdx; close_('del-overlay'); showLoader('Deleting…');
   try {
-    const meta = await gapi.client.sheets.spreadsheets.get({ spreadsheetId: sheetId });
+    const meta = await gapi.client.sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
     const sh   = meta.result.sheets.find(s => s.properties.title === S.sheetName);
     await gapi.client.sheets.spreadsheets.batchUpdate({
-      spreadsheetId: sheetId,
+      spreadsheetId: SHEET_ID,
       resource: { requests: [{ deleteDimension: {
-        range: { sheetId: sh.properties.sheetId, dimension: 'ROWS',
-                 startIndex: ri + 1, endIndex: ri + 2 }
+        range: { sheetId: sh.properties.sheetId, dimension: 'ROWS', startIndex: ri+1, endIndex: ri+2 }
       }}]},
     });
-    S.rows.splice(ri, 1);
-    filterRows();
-    toast('Row deleted', 'ok');
-  } catch (e) {
-    toast('Delete failed: ' + (e.result?.error?.message || e.message || e), 'err');
-  } finally { hideLoader(); }
+    S.rows.splice(ri, 1); filterRows(); toast('Row deleted', 'ok');
+  } catch (e) { toast('Delete failed: ' + (e.result?.error?.message || e.message || e), 'err'); }
+  finally { hideLoader(); }
 }
 
-// ════════════════════════════════════════════════════════════
-//  UI HELPERS
-// ════════════════════════════════════════════════════════════
 const open_      = id => document.getElementById(id).classList.add('open');
 const close_     = id => document.getElementById(id).classList.remove('open');
-const showLoader = msg => {
-  document.getElementById('loader-msg').textContent = msg || 'Loading…';
-  document.getElementById('loader').style.display   = 'flex';
-};
-const hideLoader = () => { document.getElementById('loader').style.display = 'none'; };
+const showLoader = msg => { document.getElementById('loader-msg').textContent = msg; document.getElementById('loader').style.display = 'flex'; };
+const hideLoader = ()  => document.getElementById('loader').style.display = 'none';
 
 function toast(msg, type = 'info') {
   const el = document.createElement('div');
@@ -594,9 +480,7 @@ function toast(msg, type = 'info') {
 }
 
 function x(s) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 document.addEventListener('keydown', e => {
