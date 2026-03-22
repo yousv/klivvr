@@ -20,15 +20,14 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Inject secrets into index.html
+      - name: Inject secrets into app.js
         run: |
-          sed -i "s|%%GOOGLE_CLIENT_ID%%|${{ secrets.GOOGLE_CLIENT_ID }}|g" index.html
-          sed -i "s|%%GOOGLE_SHEET_ID%%|${{ secrets.GOOGLE_SHEET_ID }}|g"   index.html
+          sed -i "s|%%GOOGLE_CLIENT_ID%%|${{ secrets.GOOGLE_CLIENT_ID }}|g" app.js
+          sed -i "s|%%GOOGLE_SHEET_ID%%|${{ secrets.GOOGLE_SHEET_ID }}|g"   app.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
