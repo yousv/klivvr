@@ -190,7 +190,29 @@ function detectCat(hex) {
 }
 
 let _searchTimer;
-function debouncedSearch() { clearTimeout(_searchTimer); _searchTimer=setTimeout(render,150); }
+function debouncedSearch() {
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(() => {
+    const q = $('search').value;
+    const clearBtn = $('search-clear');
+    if (clearBtn) clearBtn.classList.toggle('visible', q.length > 0);
+    if (q) {
+      const ql = q.toLowerCase();
+      CAT_ORDER.forEach(key => {
+        const hasMatch = S.rows.some(r => r.cat === key && r.values.some(v => v.toLowerCase().includes(ql)));
+        if (hasMatch && !S.openGroups.has(key)) { S.openGroups.add(key); persistGroups(); }
+      });
+    }
+    render();
+  }, 150);
+}
+
+function clearSearch() {
+  $('search').value = '';
+  const clearBtn = $('search-clear');
+  if (clearBtn) clearBtn.classList.remove('visible');
+  render();
+}
 
 function render() {
   const q=$('search').value.toLowerCase();
@@ -276,9 +298,23 @@ function render() {
     group.append(hdr,body);
     container.appendChild(group);
   });
+
+  requestAnimationFrame(adjustNameCols);
 }
 
-function copy(el,val) {
+function adjustNameCols() {
+  document.querySelectorAll('.cards-list').forEach(list => {
+    const nameCells = list.querySelectorAll('.name-cell');
+    const hdrName   = list.querySelector('.col-header-name');
+    if (!nameCells.length) return;
+    nameCells.forEach(c => { c.style.width = 'max-content'; c.style.whiteSpace = 'nowrap'; });
+    let maxW = 0;
+    nameCells.forEach(c => { maxW = Math.max(maxW, c.offsetWidth); });
+    maxW = Math.min(Math.max(maxW + 1, 80), 240);
+    nameCells.forEach(c => { c.style.width = maxW + 'px'; c.style.whiteSpace = ''; });
+    if (hdrName) hdrName.style.width = maxW + 'px';
+  });
+}
   navigator.clipboard.writeText(val).then(()=>{
     el.classList.add('copied');
     setTimeout(()=>el.classList.remove('copied'),700);

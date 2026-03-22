@@ -34,6 +34,7 @@
       <div id="search-wrap">
         <span class="s-ico">⌕</span>
         <input type="text" id="search" placeholder="Search… (⌘K)" oninput="debouncedSearch()" autocomplete="off" spellcheck="false" />
+        <button id="search-clear" onclick="clearSearch()" title="Clear">✕</button>
       </div>
       <button class="btn sm" id="btn-refresh" onclick="loadData()">↻</button>
       <button class="btn sm primary" id="btn-add" onclick="openAdd()">+ Add</button>
