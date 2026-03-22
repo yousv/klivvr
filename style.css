@@ -149,6 +149,7 @@ html,body{height:100%;background:var(--bg);color:var(--white);font-family:var(--
   border-bottom:1px solid rgba(255,255,255,.04);
   animation:cardIn .28s ease backwards;
   transition:background .1s;
+  max-height:120px;
 }
 .row-card:hover{background:var(--s2)}
 @keyframes cardIn{from{opacity:0;transform:translateY(5px)}}
@@ -159,6 +160,7 @@ html,body{height:100%;background:var(--bg);color:var(--white);font-family:var(--
   padding:9px 11px;
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:1px;
+  overflow:hidden;
 }
 .name-line{
   display:block;text-align:center;
@@ -177,7 +179,7 @@ html,body{height:100%;background:var(--bg);color:var(--white);font-family:var(--
   text-align:center;white-space:pre-wrap;word-break:break-word;
   width:100%;padding:3px 5px;border-radius:5px;
   border:1px solid transparent;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden;
   transition:background .1s,border-color .1s,color .1s;
   min-height:22px;
 }
