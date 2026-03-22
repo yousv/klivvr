@@ -6,10 +6,13 @@ module.exports = async function handler(req, res) {
 
   const { code, state, error } = req.query;
   const cookies = parseCookies(req);
+  const savedState = cookies.oauth_state;
 
-  if (error || !code || !state || state !== cookies.oauth_state) {
-    return res.redirect(302, '/?auth_error=1');
-  }
+  if (error)       return res.redirect(302, `/?auth_error=google:${error}`);
+  if (!code)       return res.redirect(302, '/?auth_error=no_code');
+  if (!state)      return res.redirect(302, '/?auth_error=no_state');
+  if (!savedState) return res.redirect(302, '/?auth_error=no_cookie');
+  if (state !== savedState) return res.redirect(302, '/?auth_error=state_mismatch');
 
   try {
     const auth = makeOAuth2();
@@ -26,12 +29,12 @@ module.exports = async function handler(req, res) {
     });
 
     const current = res.getHeader('Set-Cookie');
-    const clear = 'oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0';
+    const clear   = 'oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0';
     res.setHeader('Set-Cookie', Array.isArray(current) ? [...current, clear] : [current, clear]);
 
     res.redirect(302, '/');
   } catch (e) {
     console.error('OAuth callback error:', e.message);
-    res.redirect(302, '/?auth_error=1');
+    res.redirect(302, `/?auth_error=token:${encodeURIComponent(e.message)}`);
   }
 };

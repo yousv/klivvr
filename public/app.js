@@ -125,9 +125,10 @@ window.addEventListener('DOMContentLoaded',async()=>{
     if(!hasCached) $('empty-state').style.display='flex';
 
     const p=new URLSearchParams(location.search);
-    if(p.has('auth_error')) toast('Sign in failed. Try again.','err');
-    if(p.has('auth_error')) history.replaceState(null,'','/');
-  }
+    if(p.has('auth_error')) {
+      toast('Sign in failed: ' + p.get('auth_error'), 'err');
+      history.replaceState(null,'','/');
+    }  }
 });
 
 async function apiFetch(url,opts={}) {
