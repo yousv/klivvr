@@ -302,7 +302,7 @@ function attachPicker() {
 }
 
 function fieldHtml(h, i, val = '') {
-  return `<div class="field"><label>${xe(h)}</label><textarea id="f${i}" dir="rtl" rows="2" placeholder="—">${xe(val)}</textarea></div>`;
+  return `<div class="field"><label>${xe(h)}</label><textarea id="f${i}" dir="rtl" rows="2" placeholder="—" autocomplete="new-password" spellcheck="false">${xe(val)}</textarea></div>`;
 }
 
 function openAdd() {
