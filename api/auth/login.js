@@ -21,9 +21,8 @@ module.exports = function handler(req, res) {
   const url   = auth.generateAuthUrl({
     access_type: 'offline',
     prompt:      'consent',
-    scope:       ['https://www.googleapis.com/auth/spreadsheets'],
+    scope: ['openid', 'email', 'https://www.googleapis.com/auth/spreadsheets'],
     state,
   });
   res.redirect(302, url);
 };
-
