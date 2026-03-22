@@ -1,5 +1,13 @@
-const { makeOAuth2 } = require('../../lib/sheets');
+const { google }   = require('googleapis');
 const { setSession, parseCookies } = require('../../lib/session');
+
+function makeOAuth2() {
+  return new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    `${process.env.BASE_URL}/api/auth/callback`
+  );
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
@@ -15,9 +23,7 @@ module.exports = async function handler(req, res) {
     const auth = makeOAuth2();
     const { tokens } = await auth.getToken(code);
 
-    if (!tokens.refresh_token) {
-      return res.redirect(302, '/api/auth/login');
-    }
+    if (!tokens.refresh_token) return res.redirect(302, '/api/auth/login');
 
     setSession(res, {
       accessToken:  tokens.access_token,
@@ -25,10 +31,9 @@ module.exports = async function handler(req, res) {
       expiresAt:    tokens.expiry_date,
     });
 
-    res.setHeader('Set-Cookie', [
-      res.getHeader('Set-Cookie'),
-      'oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0',
-    ].flat().filter(Boolean));
+    const existing = res.getHeader('Set-Cookie');
+    const clear    = 'oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0';
+    res.setHeader('Set-Cookie', [existing, clear].flat().filter(Boolean));
 
     res.redirect(302, '/');
   } catch (e) {
