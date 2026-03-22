@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 <title>Klivvr Scripts</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='%2306080f'/><path d='M3 3h18v3H3V3zm0 5h12v3H3V8zm0 5h18v3H3v-3zm0 5h12v3H3v-3z' fill='%237ecece'/></svg>" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='%230a0a0a'/><path d='M3 3h18v3H3V3zm0 5h12v3H3V8zm0 5h18v3H3v-3zm0 5h12v3H3v-3z' fill='%237ecece'/></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="style.css" />
@@ -33,10 +33,10 @@
     <div id="toolbar">
       <div id="search-wrap">
         <span class="s-ico">⌕</span>
-        <input type="text" id="search" placeholder="Search…" oninput="render()" autocomplete="off" spellcheck="false" />
+        <input type="text" id="search" placeholder="Search… (⌘K)" oninput="debouncedSearch()" autocomplete="off" spellcheck="false" />
       </div>
-      <button class="btn sm" onclick="loadData()">↻</button>
-      <button class="btn sm primary" onclick="openAdd()">+ Add</button>
+      <button class="btn sm" id="btn-refresh" onclick="loadData()">↻</button>
+      <button class="btn sm primary" id="btn-add" onclick="openAdd()">+ Add</button>
       <div id="row-count"></div>
     </div>
     <div id="scroll-area">
