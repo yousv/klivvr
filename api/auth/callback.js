@@ -34,7 +34,6 @@ module.exports = async function handler(req, res) {
     const email   = (payload.email || '').toLowerCase();
     const allowed = (process.env.ALLOWED_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
 
-    console.log('Login attempt:', email, '| allowed:', allowed, '| match:', !allowed.length || allowed.includes(email));
 
     if (allowed.length && !allowed.includes(email)) {
       return res.redirect(302, '/?auth_error=unauthorized');
@@ -48,7 +47,7 @@ module.exports = async function handler(req, res) {
     });
     res.redirect(302, '/');
   } catch (e) {
-    console.error('OAuth callback error:', e.message, e.stack);
-    res.redirect(302, `/?auth_error=${encodeURIComponent(e.message.slice(0,60))}`);
+    console.error('OAuth callback error:', e.message);
+    res.redirect(302, '/?auth_error=token');
   }
 };
