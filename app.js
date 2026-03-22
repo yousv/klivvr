@@ -36,6 +36,7 @@ function persistGroups() {
 function saveToken(t, exp) {
   localStorage.setItem(KEY_TOKEN,  t);
   localStorage.setItem(KEY_EXPIRY, Date.now() + exp * 1000);
+  scheduleRefresh(exp);
 }
 function loadToken() {
   const t = localStorage.getItem(KEY_TOKEN);
@@ -45,6 +46,14 @@ function loadToken() {
 function clearToken() {
   localStorage.removeItem(KEY_TOKEN);
   localStorage.removeItem(KEY_EXPIRY);
+}
+
+function scheduleRefresh(expiresInSeconds) {
+  const refreshInMs = (expiresInSeconds - 120) * 1000;
+  if (refreshInMs <= 0) return;
+  setTimeout(() => {
+    if (S.tokenClient) S.tokenClient.requestAccessToken({ prompt: '' });
+  }, refreshInMs);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -88,8 +97,12 @@ function checkReady() {
   if (!S.gapiReady || !S.gisReady) return;
   hideLoader();
   const t = loadToken();
-  if (t) { gapi.client.setToken({ access_token: t }); onAuthed(); }
-  else $('btn-auth').style.display = 'inline-flex';
+  if (t) {
+    gapi.client.setToken({ access_token: t });
+    const remaining = Math.floor((+localStorage.getItem(KEY_EXPIRY) - Date.now()) / 1000);
+    scheduleRefresh(remaining);
+    onAuthed();
+  } else $('btn-auth').style.display = 'inline-flex';
 }
 
 function handleAuth() { S.tokenClient.requestAccessToken({ prompt: '' }); }
@@ -295,7 +308,7 @@ function fieldHtml(h, i, val = '') {
 function openAdd() {
   S.editRow = null; S.editCat = 'General';
   $('modal-title').textContent = 'Add row';
-  $('modal-fields').innerHTML  = buildPicker('General') + S.headers.map(fieldHtml).join('');
+  $('modal-fields').innerHTML  = buildPicker('General') + S.headers.map((h, i) => fieldHtml(h, i)).join('');
   attachPicker();
   open_('edit-overlay');
   setTimeout(() => $('f0')?.focus(), 100);
