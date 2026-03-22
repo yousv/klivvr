@@ -21,6 +21,7 @@ const S = {
   loggedIn:false, writeEnabled:false,
   hideContent: localStorage.getItem(K.HIDE) === '1',
   openGroups: new Set(JSON.parse(localStorage.getItem(K.GROUPS)||'[]')),
+  autoExpanded: new Set(),
 };
 
 const $ = id => document.getElementById(id);
@@ -42,7 +43,7 @@ function toast(msg,type='info') {
   const t=mk('div','toast '+type);
   t.innerHTML=`<span class="t-dot"></span><span>${xe(msg)}</span>`;
   $('toasts').appendChild(t);
-  setTimeout(()=>t.remove(),2800);
+  setTimeout(()=>t.remove(),4500);
 }
 
 function saveCache() {
@@ -184,15 +185,25 @@ function debouncedSearch() {
     if(q) {
       const ql=q.toLowerCase();
       CAT_ORDER.forEach(key=>{
-        if(S.rows.some(r=>r.cat===key&&r.values.some(v=>v.toLowerCase().includes(ql))))
-          if(!S.openGroups.has(key)) { S.openGroups.add(key); persistGroups(); }
+        if(S.rows.some(r=>r.cat===key&&r.values.some(v=>v.toLowerCase().includes(ql)))) {
+          if(!S.openGroups.has(key)) {
+            S.openGroups.add(key);
+            S.autoExpanded.add(key);
+          }
+        }
       });
+    } else {
+      S.autoExpanded.forEach(key=>S.openGroups.delete(key));
+      S.autoExpanded.clear();
     }
     render();
   },150);
 }
 function clearSearch() {
-  $('search').value=''; $('search-clear').classList.remove('visible'); render();
+  $('search').value=''; $('search-clear').classList.remove('visible');
+  S.autoExpanded.forEach(key=>S.openGroups.delete(key));
+  S.autoExpanded.clear();
+  render();
 }
 
 function render() {
@@ -269,7 +280,13 @@ function render() {
       });
 
       const acts=mk('div','row-acts');
-      if(S.writeEnabled) acts.append(mkBtn('ghost icon','✎','Edit',()=>openEdit(row)), mkBtn('danger icon','✕','Delete',()=>openDel(row)));
+      if(S.writeEnabled) {
+        const editBtn=mkBtn('ghost icon','','Edit',()=>openEdit(row));
+        editBtn.innerHTML=`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+        const delBtn=mkBtn('danger icon','','Delete',()=>openDel(row));
+        delBtn.innerHTML=`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
+        acts.append(editBtn,delBtn);
+      }
 
       card.append(nameCell,dataCells,acts);
       list.appendChild(card);
