@@ -139,30 +139,27 @@ html, body { height: 100%; font-family: var(--mono); font-size: 14px; color: var
 }
 .row-card:hover { background:var(--g8); }
 
-/* Name row — full width, prominent */
+/* Name row */
 .card-name-row {
   display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
 }
 .card-name {
-  font-family:var(--sans); font-size:15px; font-weight:600; color:var(--white);
-  white-space:pre-wrap; word-break:break-word; flex:1; line-height:1.4;
-  /* not copyable — cursor default */
+  flex:1; font-family:var(--sans); font-size:15px; font-weight:600;
+  color:var(--white); white-space:pre-wrap; word-break:break-word;
+  line-height:1.4; text-align:center;
+  padding:6px 10px; border-radius:7px;
+  border:1px solid var(--g6); background:var(--g8);
 }
-.cat-dot-inline {
-  display:inline-block; width:8px; height:8px; border-radius:50%;
-  margin-right:8px; vertical-align:middle; position:relative; top:-1px; flex-shrink:0;
-}
-.card-acts { display:flex; gap:5px; flex-shrink:0; padding-top:2px; }
+.card-acts { display:flex; gap:5px; flex-shrink:0; padding-top:4px; }
 
-/* Three cols below name */
-.card-fields { display:grid; grid-template-columns:repeat(3,1fr); gap:10px 16px; }
-@media (max-width:479px) { .card-fields { grid-template-columns:1fr 1fr; } }
+/* Always 3 equal columns regardless of screen size */
+.card-fields { display:grid; grid-template-columns:repeat(3,1fr); gap:8px 8px; }
 
 .cf-block { display:flex; flex-direction:column; gap:3px; }
-.cf-label { font-size:10px; color:var(--g4); text-transform:uppercase; letter-spacing:.8px; }
+.cf-label { font-size:10px; color:var(--g4); text-transform:uppercase; letter-spacing:.8px; text-align:center; }
 .cf-val {
   font-size:13px; color:var(--g2); white-space:pre-wrap; word-break:break-word;
-  cursor:pointer; transition:color .1s;
+  cursor:pointer; transition:color .1s; text-align:center;
 }
 .cf-val:hover { color:var(--white); }
 .cf-val.empty { color:var(--g5); font-style:italic; }
@@ -503,7 +500,7 @@ async function loadData() {
       spreadsheetId: SHEET_ID,
       includeGridData: true,
       ranges: [`'${sheetName}'!A:D`],
-      fields: 'properties.title,sheets(properties,data(rowData(values(formattedValue,effectiveFormat(backgroundColor,textFormat(foregroundColor,foregroundColorStyle))))))',
+      fields: 'properties.title,sheets(properties,data(rowData(values(formattedValue,effectiveFormat(backgroundColor,textFormat(foregroundColor,foregroundColorStyle(rgbColor))),userEnteredFormat(backgroundColor,textFormat(foregroundColor,foregroundColorStyle(rgbColor)))))))',
     });
 
     const sheetObj = meta.result.sheets.find(s => s.properties.sheetId === TARGET_GID)
@@ -566,15 +563,17 @@ function extractBgHex(cell) {
 }
 
 function extractFgHex(cell) {
-  const fmt = cell?.effectiveFormat || cell?.userEnteredFormat;
-  // Sheets returns foregroundColorStyle.rgbColor (newer) or foregroundColor (older)
-  const fg  = fmt?.textFormat?.foregroundColorStyle?.rgbColor
-           || fmt?.textFormat?.foregroundColor;
-  if (!fg) return null;
-  const [r, g, b] = rgbToHex(fg);
-  if (r < 15 && g < 15 && b < 15) return null; // near-black = default, skip
-  if (r > 240 && g > 240 && b > 240) return null; // near-white, skip
-  return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+  // Check both effectiveFormat and userEnteredFormat independently
+  for (const fmt of [cell?.effectiveFormat, cell?.userEnteredFormat]) {
+    const fg = fmt?.textFormat?.foregroundColorStyle?.rgbColor
+            || fmt?.textFormat?.foregroundColor;
+    if (!fg) continue;
+    const [r, g, b] = rgbToHex(fg);
+    if (r < 15 && g < 15 && b < 15) continue;   // near-black = default, skip
+    if (r > 240 && g > 240 && b > 240) continue; // near-white, skip
+    return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+  }
+  return null;
 }
 
 function hexToHsl(hex) {
@@ -668,13 +667,7 @@ function filterAndRender() {
 
       const nameEl = document.createElement('div');
       nameEl.className = 'card-name';
-      nameEl.dir = 'rtl';
-      // Dot + text
-      const dot = document.createElement('span');
-      dot.className = 'cat-dot-inline';
-      dot.style.background = bgColor;
-      nameEl.appendChild(dot);
-      nameEl.appendChild(document.createTextNode(name));
+      nameEl.textContent = name;
       if (fgColor) nameEl.style.color = fgColor;
 
       const actsEl = document.createElement('div');
