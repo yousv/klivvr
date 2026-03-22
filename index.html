@@ -4,7 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 <title>Klivvr Scripts</title>
-<link rel="icon" type="image/png" href="https://ssl.gstatic.com/docs/spreadsheets/favicon3.ico" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
@@ -264,7 +263,7 @@ tbody td.copied::after { content:'✓'; position:absolute; right:5px; top:50%; t
   <div id="topbar">
     <div class="brand">
       <div class="brand-icon">
-        <img src="https://ssl.gstatic.com/docs/spreadsheets/favicon3.ico" width="16" height="16" alt="" style="border-radius:2px;display:block;" />
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 3h18v3H3V3zm0 5h12v3H3V8zm0 5h18v3H3v-3zm0 5h12v3H3v-3z"/></svg>
       </div>
       <div class="brand-name">Klivvr Scripts</div>
     </div>
@@ -272,7 +271,7 @@ tbody td.copied::after { content:'✓'; position:absolute; right:5px; top:50%; t
     <span id="sheet-label">—</span>
     <div class="spacer"></div>
     <div id="conn-dot"></div>
-    <button class="btn sm primary" id="btn-auth" onclick="doOAuthRedirect()" style="display:none">Sign in</button>
+    <button class="btn sm primary" id="btn-auth" onclick="handleAuth()" style="display:none">Sign in</button>
     <button class="btn sm ghost"   id="btn-out"  onclick="signOut()"         style="display:none">Sign out</button>
   </div>
 
@@ -353,9 +352,8 @@ const CAT = {
 };
 
 /* ── STORAGE KEYS ── */
-const KEY_TOKEN   = 'ks_token';
-const KEY_EXPIRY  = 'ks_expiry';
-const KEY_AUTHED  = 'ks_authed';
+const KEY_TOKEN  = 'ks_token';
+const KEY_EXPIRY = 'ks_expiry';
 
 /* ── STATE ── */
 let S = {
@@ -367,47 +365,40 @@ let S = {
   editRow:    null,
   delRow:     null,
   editCat:    'General',
+  tokenClient: null,
+  gapiReady:   false,
+  gisReady:    false,
 };
 
 /* ═══════════════════════════════════════════════════════════
-   AUTH — redirect-based implicit flow (no popup needed)
+   AUTH — GIS popup flow + localStorage token persistence
+   Uses Authorized JavaScript origins (no redirect URIs needed)
    ═══════════════════════════════════════════════════════════ */
-function getRedirectUri() {
-  // Strip any filename (index.html etc) so the URI is always the directory root,
-  // matching exactly what's registered in Google Cloud Console.
-  const path = window.location.pathname.replace(/\/[^/]*\.[^/]*$/, '/');
-  const uri  = window.location.origin + path;
-  return uri.endsWith('/') ? uri : uri + '/';
+
+function saveToken(token, expiresIn) {
+  localStorage.setItem(KEY_TOKEN,  token);
+  localStorage.setItem(KEY_EXPIRY, String(Date.now() + expiresIn * 1000));
 }
 
-function doOAuthRedirect() {
-  const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-  url.searchParams.set('client_id',             CLIENT_ID);
-  url.searchParams.set('redirect_uri',          getRedirectUri());
-  url.searchParams.set('response_type',         'token');
-  url.searchParams.set('scope',                 SCOPES);
-  url.searchParams.set('include_granted_scopes','true');
-  url.searchParams.set('prompt',                'none'); // silent if already consented
-  window.location.href = url.toString();
+function loadToken() {
+  const token  = localStorage.getItem(KEY_TOKEN);
+  const expiry = parseInt(localStorage.getItem(KEY_EXPIRY) || '0');
+  if (token && Date.now() < expiry - 30000) return token; // valid with 30s buffer
+  return null;
 }
 
-function doOAuthRedirectForce() {
-  const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-  url.searchParams.set('client_id',             CLIENT_ID);
-  url.searchParams.set('redirect_uri',          getRedirectUri());
-  url.searchParams.set('response_type',         'token');
-  url.searchParams.set('scope',                 SCOPES);
-  url.searchParams.set('include_granted_scopes','true');
-  window.location.href = url.toString();
+function clearToken() {
+  localStorage.removeItem(KEY_TOKEN);
+  localStorage.removeItem(KEY_EXPIRY);
 }
 
 function signOut() {
-  localStorage.removeItem(KEY_TOKEN);
-  localStorage.removeItem(KEY_EXPIRY);
-  localStorage.removeItem(KEY_AUTHED);
-  // Revoke via fetch (best-effort, no blocking)
-  const token = localStorage.getItem(KEY_TOKEN);
-  if (token) fetch(`https://oauth2.googleapis.com/revoke?token=${token}`, { method: 'POST' }).catch(()=>{});
+  const t = gapi?.client?.getToken?.();
+  if (t?.access_token) {
+    google.accounts.oauth2.revoke(t.access_token, () => {});
+    gapi.client.setToken(null);
+  }
+  clearToken();
   document.getElementById('btn-auth').style.display = 'inline-flex';
   document.getElementById('btn-out').style.display  = 'none';
   document.getElementById('sheet-label').textContent = '—';
@@ -416,109 +407,83 @@ function signOut() {
   document.getElementById('row-count').textContent = '';
 }
 
-function handleTokenFromHash() {
-  const hash   = new URLSearchParams(window.location.hash.slice(1));
-  const token  = hash.get('access_token');
-  const expIn  = hash.get('expires_in');
-  const error  = hash.get('error');
-
-  // Always clean the URL hash
-  if (window.location.hash) {
-    history.replaceState(null, '', window.location.pathname + window.location.search);
-  }
-
-  if (error) {
-    if (error === 'access_denied' || error === 'interaction_required') {
-      // Silent auth failed — need user to click
-      localStorage.removeItem(KEY_AUTHED);
-    }
-    return false;
-  }
-
-  if (token) {
-    const expiry = Date.now() + parseInt(expIn || '3600') * 1000;
-    localStorage.setItem(KEY_TOKEN,  token);
-    localStorage.setItem(KEY_EXPIRY, String(expiry));
-    localStorage.setItem(KEY_AUTHED, '1');
-    return token;
-  }
-  return null;
-}
-
 /* ═══════════════════════════════════════════════════════════
    BOOT
    ═══════════════════════════════════════════════════════════ */
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('DOMContentLoaded', () => {
   if (CLIENT_ID.startsWith('%%') || SHEET_ID.startsWith('%%')) {
     document.getElementById('error-screen').style.display = 'flex';
     return;
   }
-
   const mv = document.getElementById('main-view');
   mv.style.cssText = 'display:flex;flex-direction:column;flex:1;overflow:hidden;';
-
-  // 1. Check if we just came back from OAuth redirect
-  const freshToken = handleTokenFromHash();
-
-  // 2. Determine which token to use
-  const storedToken  = localStorage.getItem(KEY_TOKEN);
-  const storedExpiry = parseInt(localStorage.getItem(KEY_EXPIRY) || '0');
-  const hasAuthed    = localStorage.getItem(KEY_AUTHED) === '1';
-  const tokenValid   = storedToken && Date.now() < storedExpiry - 30000; // 30s buffer
-
-  if (freshToken || tokenValid) {
-    // We have a good token — use it directly, no popup
-    await bootWithToken(freshToken || storedToken);
-  } else if (hasAuthed) {
-    // User has authed before, token just expired — silently redirect to refresh
-    doOAuthRedirect();
-  } else {
-    // First visit — show Sign In button
-    hideLoader();
-    document.getElementById('btn-auth').style.display = 'inline-flex';
-  }
+  showLoader('Connecting…');
+  loadScript('https://apis.google.com/js/api.js', onGapiLoad);
+  loadScript('https://accounts.google.com/gsi/client', onGisLoad);
 });
-
-async function bootWithToken(token) {
-  showLoader('Loading…');
-  try {
-    // Load gapi client
-    await new Promise((res, rej) => {
-      loadScript('https://apis.google.com/js/api.js', () => {
-        gapi.load('client', async () => {
-          try {
-            await gapi.client.init({});
-            await gapi.client.load(DISCOVERY);
-            res();
-          } catch(e) { rej(e); }
-        });
-      });
-    });
-
-    gapi.client.setToken({ access_token: token });
-
-    document.getElementById('btn-auth').style.display = 'none';
-    document.getElementById('btn-out').style.display  = 'inline-flex';
-    document.getElementById('conn-dot').className = 'ok';
-
-    await loadData();
-  } catch(e) {
-    console.error(e);
-    hideLoader();
-    toast('Failed to connect: ' + (e.message || e), 'err');
-    // If auth error, force fresh login
-    if (e.status === 401) {
-      localStorage.removeItem(KEY_TOKEN);
-      doOAuthRedirectForce();
-    }
-  }
-}
 
 function loadScript(src, cb) {
   const s = document.createElement('script');
   s.src = src; s.onload = cb;
   s.onerror = () => { hideLoader(); toast('Failed to load Google APIs', 'err'); };
   document.head.appendChild(s);
+}
+
+function onGapiLoad() {
+  gapi.load('client', async () => {
+    await gapi.client.init({});
+    await gapi.client.load(DISCOVERY);
+    S.gapiReady = true;
+    checkReady();
+  });
+}
+
+function onGisLoad() {
+  S.tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: (resp) => {
+      if (resp.error) {
+        hideLoader();
+        toast('Sign in failed: ' + resp.error, 'err');
+        document.getElementById('btn-auth').style.display = 'inline-flex';
+        return;
+      }
+      // Save token so we can reuse it without a popup next visit
+      saveToken(resp.access_token, parseInt(resp.expires_in || '3600'));
+      onAuthed();
+    },
+  });
+  S.gisReady = true;
+  checkReady();
+}
+
+function checkReady() {
+  if (!S.gapiReady || !S.gisReady) return;
+  hideLoader();
+
+  const savedToken = loadToken();
+  if (savedToken) {
+    // Reuse stored token — no popup needed
+    gapi.client.setToken({ access_token: savedToken });
+    onAuthed();
+  } else {
+    // First visit or token expired — show Sign In button
+    document.getElementById('btn-auth').style.display = 'inline-flex';
+  }
+}
+
+// Called when Sign In button is clicked
+function handleAuth() {
+  // prompt:'' = show consent if needed, silent if already granted
+  S.tokenClient.requestAccessToken({ prompt: '' });
+}
+
+function onAuthed() {
+  document.getElementById('btn-auth').style.display = 'none';
+  document.getElementById('btn-out').style.display  = 'inline-flex';
+  document.getElementById('conn-dot').className = 'ok';
+  loadData();
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -565,7 +530,7 @@ async function loadData() {
   } catch(e) {
     console.error(e);
     toast('Error: ' + (e.result?.error?.message || e.message || e), 'err');
-    if (e.status === 401) { localStorage.removeItem(KEY_TOKEN); doOAuthRedirectForce(); }
+    if (e.status === 401) { clearToken(); gapi.client.setToken(null); document.getElementById('btn-auth').style.display = 'inline-flex'; document.getElementById('btn-out').style.display = 'none'; document.getElementById('conn-dot').className = 'err'; }
   } finally { hideLoader(); }
 }
 
