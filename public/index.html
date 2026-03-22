@@ -31,13 +31,22 @@
   <main id="main-view">
     <div id="toolbar">
       <div id="search-wrap">
-        <span class="s-ico">⌕</span>
+        <span class="s-ico">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8.5" r="5.5"/><line x1="14" y1="14" x2="18" y2="18"/></svg>
+        </span>
         <input type="text" id="search" placeholder="Search" oninput="debouncedSearch()" autocomplete="off" spellcheck="false" />
-        <button id="search-clear" onclick="clearSearch()">✕</button>
+        <button id="search-clear" onclick="clearSearch()" title="Clear search">
+          <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg>
+        </button>
       </div>
-      <button class="btn ghost sm icon" id="btn-hide" onclick="toggleHide()" title="Toggle row content"></button>
-      <button class="btn ghost sm" id="btn-refresh" onclick="fetchData()">↻</button>
-      <button class="btn primary sm" id="btn-add" onclick="openAdd()">+ Add</button>
+      <button class="btn ghost sm icon" id="btn-hide" onclick="toggleHide()" title="Hide row content"></button>
+      <button class="btn ghost sm icon" id="btn-refresh" onclick="fetchData()" title="Refresh">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 10a7 7 0 1 1-1.5-4.33"/><polyline points="17 3 17 8 12 8"/></svg>
+      </button>
+      <button class="btn primary sm" id="btn-add" onclick="openAdd()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add
+      </button>
       <span id="row-count"></span>
     </div>
     <div id="scroll-area">
@@ -55,7 +64,9 @@
     <div class="drag-handle"></div>
     <div class="modal-head">
       <h2 id="modal-title">Row</h2>
-      <button class="btn ghost icon" onclick="close_('edit-overlay')">✕</button>
+      <button class="btn ghost icon" onclick="close_('edit-overlay')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
     <div class="modal-body" id="modal-fields"></div>
     <div class="modal-foot">
@@ -70,7 +81,9 @@
     <div class="drag-handle"></div>
     <div class="modal-head">
       <h2>Delete row</h2>
-      <button class="btn ghost icon" onclick="close_('del-overlay')">✕</button>
+      <button class="btn ghost icon" onclick="close_('del-overlay')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
     <div class="modal-body">
       <p class="confirm-msg">This row will be permanently removed from the spreadsheet.</p>
