@@ -175,6 +175,9 @@ html,body{height:100%;background:var(--bg);color:var(--white);font-family:var(--
 .dc-val.empty:hover{background:transparent;border-color:transparent}
 .dc-val.copied{color:var(--teal);background:var(--teal-a);border-color:rgba(126,206,206,.2)}
 
+.dc-copy { font-size:14px; opacity:.5; transition:opacity .1s; }
+.dc-copy:hover { opacity:1; }
+
 .row-acts{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px;flex-shrink:0;width:56px}
 
 table{display:none!important}

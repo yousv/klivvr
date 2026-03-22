@@ -35,6 +35,7 @@
         <input type="text" id="search" placeholder="Search" oninput="debouncedSearch()" autocomplete="off" spellcheck="false" />
         <button id="search-clear" onclick="clearSearch()">✕</button>
       </div>
+      <button class="btn ghost sm icon" id="btn-hide" onclick="toggleHide()" title="Toggle row content"></button>
       <button class="btn ghost sm" id="btn-refresh" onclick="fetchData()">↻</button>
       <button class="btn primary sm" id="btn-add" onclick="openAdd()">+ Add</button>
       <span id="row-count"></span>

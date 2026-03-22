@@ -1,4 +1,4 @@
-const K = { GROUPS:'ks_groups', DATA:'ks_data' };
+const K = { GROUPS:'ks_groups', DATA:'ks_data', HIDE:'ks_hide' };
 
 const CAT = {
   Available:   { label:'Available',   color:'#8F76D8', rgb:[143,118,216] },
@@ -19,6 +19,7 @@ const S = {
   headers:[], rows:[], sheetName:'', sheetTitle:'',
   editRow:null, delRow:null, editCat:'General',
   loggedIn:false, writeEnabled:false,
+  hideContent: localStorage.getItem(K.HIDE) === '1',
   openGroups: new Set(JSON.parse(localStorage.getItem(K.GROUPS)||'[]')),
 };
 
@@ -62,7 +63,20 @@ function loadCache() {
 }
 function persistGroups() { localStorage.setItem(K.GROUPS,JSON.stringify([...S.openGroups])); }
 
-function setWriteEnabled(v) {
+function updateHideBtn() {
+  const btn = $('btn-hide');
+  if (!btn) return;
+  btn.textContent = S.hideContent ? '👁' : '👁';
+  btn.style.opacity = S.hideContent ? '1' : '0.45';
+  btn.title = S.hideContent ? 'Show row content' : 'Hide row content';
+}
+
+function toggleHide() {
+  S.hideContent = !S.hideContent;
+  localStorage.setItem(K.HIDE, S.hideContent ? '1' : '0');
+  updateHideBtn();
+  render();
+}
   S.writeEnabled=v;
   ['btn-refresh','btn-add'].forEach(id=>{ const el=$(id); if(el) el.disabled=!v; });
 }
@@ -104,6 +118,7 @@ function measureNameWidth(rows) {
 window.addEventListener('DOMContentLoaded',async()=>{
   const hasCached=loadCache();
   $('main-view').style.cssText='display:flex;flex-direction:column;flex:1;overflow:hidden;';
+  updateHideBtn();
   if(hasCached) render();
   if(!hasCached) showLoader('Connecting…');
 
@@ -126,7 +141,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
 
     const p=new URLSearchParams(location.search);
     if(p.has('auth_error')) {
-      toast('Sign in failed: ' + p.get('auth_error'), 'err');
+      toast('Sign in failed. Try again.', 'err');
       history.replaceState(null,'','/');
     }  }
 });
@@ -234,10 +249,19 @@ function render() {
         if(ci===0) return;
         const val=row.values[ci]||'';
         const cell=mk('div','data-cell');
-        const valEl=mk('div','dc-val'+(val?'':' empty'));
-        valEl.dir='rtl'; valEl.textContent=val||'—';
-        if(val) valEl.addEventListener('click',()=>copyVal(valEl,val,row.values[0],S.headers[ci]));
-        cell.appendChild(valEl); dataCells.appendChild(cell);
+        if(S.hideContent && val) {
+          const copyBtn=mk('button','btn ghost icon dc-copy');
+          copyBtn.textContent='⎘';
+          copyBtn.title='Copy';
+          copyBtn.addEventListener('click',()=>copyVal(copyBtn,val,row.values[0],S.headers[ci]));
+          cell.appendChild(copyBtn);
+        } else {
+          const valEl=mk('div','dc-val'+(val?'':' empty'));
+          valEl.dir='rtl'; valEl.textContent=val||'—';
+          if(val) valEl.addEventListener('click',()=>copyVal(valEl,val,row.values[0],S.headers[ci]));
+          cell.appendChild(valEl);
+        }
+        dataCells.appendChild(cell);
       });
 
       const acts=mk('div','row-acts');
