@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 <title>Klivvr Scripts</title>
+<link rel="icon" type="image/png" href="https://ssl.gstatic.com/docs/spreadsheets/favicon3.ico" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
@@ -372,7 +373,10 @@ let S = {
    AUTH — redirect-based implicit flow (no popup needed)
    ═══════════════════════════════════════════════════════════ */
 function getRedirectUri() {
-  return window.location.origin + window.location.pathname;
+  // Must exactly match what's registered in Google Cloud Console.
+  // Strips any query string or hash, normalises trailing slash.
+  const base = window.location.origin + window.location.pathname;
+  return base.endsWith('/') ? base : base + '/';
 }
 
 function doOAuthRedirect() {
