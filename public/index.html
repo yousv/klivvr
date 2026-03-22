@@ -28,6 +28,41 @@
 
   <div id="error-screen"><h2>Not configured</h2></div>
 
+  <div id="landing">
+    <div class="landing-inner">
+      <div class="landing-logo">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v3H3V3zm0 5h12v3H3V8zm0 5h18v3H3v-3zm0 5h12v3H3v-3z"/></svg>
+      </div>
+      <h1 class="landing-title">Klivvr Scripts</h1>
+      <p class="landing-desc">A private internal tool for managing and browsing script entries stored in Google Sheets. Organized by category, searchable, and accessible from any device.</p>
+      <a href="/api/auth/login" class="btn primary landing-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.972-5.445 3.972a6.033 6.033 0 0 1-6.032-6.032 6.033 6.033 0 0 1 6.032-6.032c1.498 0 2.866.549 3.921 1.453l2.814-2.814A9.969 9.969 0 0 0 12.545 2C7.021 2 2.543 6.477 2.543 12s4.478 10 10.002 10c8.396 0 10.249-7.85 9.426-11.748l-9.426-.013z"/></svg>
+        Sign in with Google
+      </a>
+      <div class="landing-legal">
+        <button class="legal-link" onclick="showLegal('privacy')">Privacy Policy</button>
+        <span class="legal-sep">·</span>
+        <button class="legal-link" onclick="showLegal('terms')">Terms of Service</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="legal-overlay" class="overlay">
+    <div class="modal sm">
+      <div class="drag-handle"></div>
+      <div class="modal-head">
+        <h2 id="legal-title"></h2>
+        <button class="btn ghost icon" onclick="close_('legal-overlay')">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="legal-body"></div>
+      <div class="modal-foot">
+        <button class="btn ghost" onclick="close_('legal-overlay')">Close</button>
+      </div>
+    </div>
+  </div>
+
   <main id="main-view">
     <div id="toolbar">
       <div id="search-wrap">

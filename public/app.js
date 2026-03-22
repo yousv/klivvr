@@ -144,13 +144,19 @@ window.addEventListener('DOMContentLoaded',async()=>{
     $('btn-auth').style.display='none';
     $('btn-out').style.display='inline-flex';
     $('conn-dot').className='dot ok';
+    $('landing').style.display='none';
     setWriteEnabled(true);
     if(!hasCached) await fetchData();
   } else {
     setWriteEnabled(false);
     $('btn-auth').style.display='inline-flex';
     $('conn-dot').className='dot err';
-    if(!hasCached) $('empty-state').style.display='flex';
+    $('landing').style.display='flex';
+    $('main-view').style.display='none';
+    if(hasCached) {
+      $('landing').style.display='none';
+      $('main-view').style.cssText='display:flex;flex-direction:column;flex:1;overflow:hidden;';
+    }
     const p = new URLSearchParams(location.search);
     if(p.has('auth_error')) {
       toast('Sign in failed. Try again.', 'err');
@@ -384,8 +390,51 @@ async function confirmDelete() {
   } catch(e) { toast('Delete failed: '+e.message,'err'); }
 }
 
+const LEGAL = {
+  privacy: {
+    title: 'Privacy Policy',
+    body: `<div class="legal-text">
+      <h3>Overview</h3>
+      <p>Klivvr Scripts is a private internal tool. It is not a public service and is not intended for general use.</p>
+      <h3>Data Collected</h3>
+      <p>This app accesses your Google account solely to read and write data in a specific Google Sheets spreadsheet. No personal data is collected, stored, or shared with third parties.</p>
+      <h3>Authentication</h3>
+      <p>Sign-in is handled via Google OAuth 2.0. Your Google credentials are never seen or stored by this application. A secure session cookie is used to keep you signed in.</p>
+      <h3>Google Sheets Access</h3>
+      <p>The app requests permission to access Google Sheets on your behalf. This access is limited to the designated spreadsheet and is used only to display, add, edit, and delete rows as directed by you.</p>
+      <h3>Cookies</h3>
+      <p>A single encrypted session cookie is stored in your browser to maintain your login state. It contains no personal information and expires after one year or on sign-out.</p>
+      <h3>Contact</h3>
+      <p>For any questions, contact the app administrator directly.</p>
+    </div>`,
+  },
+  terms: {
+    title: 'Terms of Service',
+    body: `<div class="legal-text">
+      <h3>Access</h3>
+      <p>Access to this application is restricted to authorized users only. Unauthorized access is prohibited.</p>
+      <h3>Use</h3>
+      <p>This tool is provided for internal use only. You agree to use it solely for its intended purpose of managing script data in the connected spreadsheet.</p>
+      <h3>Data Responsibility</h3>
+      <p>You are responsible for the accuracy of data you add, edit, or delete. Deleted rows are permanently removed from the spreadsheet and cannot be recovered through this app.</p>
+      <h3>No Warranty</h3>
+      <p>This application is provided as-is with no guarantees of uptime, data integrity, or fitness for any particular purpose.</p>
+      <h3>Changes</h3>
+      <p>These terms may be updated at any time. Continued use of the application constitutes acceptance of any changes.</p>
+    </div>`,
+  },
+};
+
+function showLegal(type) {
+  const content = LEGAL[type];
+  if(!content) return;
+  $('legal-title').textContent = content.title;
+  $('legal-body').innerHTML = content.body;
+  open_('legal-overlay');
+}
+
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape') { close_('edit-overlay'); close_('del-overlay'); }
+  if(e.key==='Escape') { close_('edit-overlay'); close_('del-overlay'); close_('legal-overlay'); }
   if((e.metaKey||e.ctrlKey)&&e.key==='k') { e.preventDefault(); $('search')?.focus(); }
   if((e.metaKey||e.ctrlKey)&&e.key==='n') { e.preventDefault(); openAdd(); }
 });
