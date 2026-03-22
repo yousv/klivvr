@@ -373,10 +373,11 @@ let S = {
    AUTH — redirect-based implicit flow (no popup needed)
    ═══════════════════════════════════════════════════════════ */
 function getRedirectUri() {
-  // Must exactly match what's registered in Google Cloud Console.
-  // Strips any query string or hash, normalises trailing slash.
-  const base = window.location.origin + window.location.pathname;
-  return base.endsWith('/') ? base : base + '/';
+  // Strip any filename (index.html etc) so the URI is always the directory root,
+  // matching exactly what's registered in Google Cloud Console.
+  const path = window.location.pathname.replace(/\/[^/]*\.[^/]*$/, '/');
+  const uri  = window.location.origin + path;
+  return uri.endsWith('/') ? uri : uri + '/';
 }
 
 function doOAuthRedirect() {
