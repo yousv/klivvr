@@ -84,14 +84,21 @@ html,body{height:100%;background:var(--bg);color:var(--white);font-family:var(--
 }
 #search-wrap input:focus{border-color:var(--b3);background:var(--s3);box-shadow:0 0 0 2px rgba(255,255,255,.08)}
 #search-wrap input::placeholder{color:var(--t3)}
-.s-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--t2);font-size:13px;pointer-events:none}
+.s-ico{
+  position:absolute;left:9px;top:50%;transform:translateY(-50%);
+  color:var(--t2);pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  width:13px;height:13px;line-height:1;
+}
+.s-ico svg{display:block}
 #search-clear{
   position:absolute;right:6px;top:50%;transform:translateY(-50%);
-  width:16px;height:16px;border-radius:50%;border:none;
-  background:var(--b2);color:var(--t2);font-size:9px;cursor:pointer;
-  display:none;align-items:center;justify-content:center;transition:background .1s,color .1s;
+  width:16px;height:16px;border-radius:3px;border:1px solid var(--b1);
+  background:transparent;color:var(--t2);cursor:pointer;
+  display:none;align-items:center;justify-content:center;
+  transition:background .1s,border-color .1s,color .1s;padding:0;
 }
-#search-clear:hover{background:var(--b3);color:var(--white)}
+#search-clear:hover{background:var(--s2);border-color:var(--b2);color:var(--white)}
 #search-clear.visible{display:flex}
 #row-count{font-family:var(--mono);font-size:11px;color:var(--t3);margin-left:auto;white-space:nowrap}
 
@@ -140,7 +147,7 @@ html,body{height:100%;background:var(--bg);color:var(--white);font-family:var(--
   border-bottom:1px solid rgba(255,255,255,.04);
   animation:cardIn .24s ease backwards;
   transition:background .08s;
-  max-height:110px;
+  max-height:340px;
 }
 .row-card:hover{background:var(--s1)}
 @keyframes cardIn{from{opacity:0;transform:translateY(4px)}}
@@ -242,7 +249,7 @@ table{display:none!important}
 .confirm-msg{color:var(--t2);font-size:13px;line-height:1.7}
 
 /* TOASTS */
-#toasts{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:300;pointer-events:none}
+#toasts{position:fixed;bottom:140px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:300;pointer-events:none}
 .toast{
   display:flex;align-items:center;gap:8px;padding:7px 14px;
   background:var(--s2);border:1px solid var(--b2);border-radius:99px;
@@ -273,5 +280,5 @@ table{display:none!important}
   .dc-val{font-size:11px;padding:2px 3px}
   .row-acts{width:44px;padding:3px}
   .btn.icon{width:24px;height:24px;font-size:12px}
-  .row-card{max-height:92px}
+  .row-card{max-height:240px}
 }
