@@ -451,8 +451,8 @@ function checkReady() {
 }
 
 function handleAuth() {
-  S.tokenClient.requestAccessToken({ prompt: 'none' });
-  setTimeout(() => { if (!S.authed) S.tokenClient.requestAccessToken({ prompt: '' }); }, 1500);
+  // Must be called synchronously inside a click — no setTimeout or the browser blocks the popup
+  S.tokenClient.requestAccessToken({ prompt: '' });
 }
 
 function signOut() {
