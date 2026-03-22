@@ -27,13 +27,15 @@ module.exports = async function handler(req, res) {
     const { tokens } = await auth.getToken(code);
     if (!tokens.refresh_token) return res.redirect(302, '/api/auth/login');
 
-    auth.setCredentials(tokens);
-
     const idToken = tokens.id_token;
     if (!idToken) return res.redirect(302, '/?auth_error=no_id_token');
+
     const payload = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64url').toString('utf8'));
     const email   = (payload.email || '').toLowerCase();
     const allowed = (process.env.ALLOWED_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+
+    console.log('Login attempt:', email, '| allowed:', allowed, '| match:', !allowed.length || allowed.includes(email));
+
     if (allowed.length && !allowed.includes(email)) {
       return res.redirect(302, '/?auth_error=unauthorized');
     }
@@ -42,11 +44,11 @@ module.exports = async function handler(req, res) {
       accessToken:  tokens.access_token,
       refreshToken: tokens.refresh_token,
       expiresAt:    tokens.expiry_date,
-      email:        info.email,
+      email,
     });
     res.redirect(302, '/');
   } catch (e) {
-    console.error('OAuth callback error:', e.message);
-    res.redirect(302, '/?auth_error=token');
+    console.error('OAuth callback error:', e.message, e.stack);
+    res.redirect(302, `/?auth_error=${encodeURIComponent(e.message.slice(0,60))}`);
   }
 };
