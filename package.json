@@ -3,7 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "engines": { "node": "22.x" },
+  "scripts": {
+    "build": "tsc && node esbuild.config.js",
+    "dev": "NODE_ENV=development node esbuild.config.js --watch"
+  },
   "dependencies": {
     "googleapis": "^140.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.3"
   }
 }
