@@ -4,7 +4,8 @@ const { getClient } = require('../lib/sheets');
 
 const SHEET_ID  = process.env.GOOGLE_SHEET_ID;
 const GID       = 1723849469;
-const MAX_COLS  = 4;
+const DATA_COLS = 4;   // columns displayed in the UI
+const PIN_COL   = 4;   // 0-indexed column index for pin order (column E, immediately after column D)
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
@@ -24,7 +25,7 @@ module.exports = async function handler(req, res) {
     const sheet   = meta.data.sheets.find(s => s.properties.sheetId === GID) || meta.data.sheets[0];
     const allRows = sheet.data?.[0]?.rowData || [];
 
-    const headers = (allRows[0]?.values || []).slice(0, MAX_COLS).map(c => c.formattedValue || '');
+    const headers = (allRows[0]?.values || []).slice(0, DATA_COLS).map(c => c.formattedValue || '');
     const rows    = [];
 
     for (let i = 1; i < allRows.length; i++) {
@@ -43,7 +44,11 @@ module.exports = async function handler(req, res) {
         }
       }
 
-      rows.push({ values, hex, sheetRow: i + 1 });
+      // Read pin order from PIN_COL (column E, immediately after the English field)
+      const pinRaw   = cells[PIN_COL]?.formattedValue;
+      const pinOrder = (pinRaw && !isNaN(parseInt(pinRaw, 10))) ? parseInt(pinRaw, 10) : null;
+
+      rows.push({ values, hex, sheetRow: i + 1, pinOrder });
     }
 
     res.json({ title: meta.data.properties.title, sheetName: sheet.properties.title, headers, rows });
